@@ -49,6 +49,7 @@ public class UserServiceImplTest extends AbstractServiceTest{
 	assertEquals(role, userDto.getRole());
 	assertEquals(cor.size(), userDto.getCorrectorsGroups().size());
 	assertEquals(cor, userDto.getCorrectorsGroups());
+        
 	List<UserDto> users = userService.getAllUsers();
 	assertEquals(1, users.size());
 	assertEquals(id, users.get(0).getId());        
@@ -62,16 +63,17 @@ public class UserServiceImplTest extends AbstractServiceTest{
 	String newSurname = "surname2";
         String newEmail = "email2" + System.currentTimeMillis();
 	List<Long> articles = new ArrayList<Long>();
-	articles.add(addArticle(id));
+        articles.add(addArticle(id));
 	Long role = addRole();
+        
 	dto.setName(newName);
 	dto.setSurname(newSurname);
 	dto.setEmail(newEmail);
 	dto.setRole(role);
 	dto.setWrittenAricles(articles);
 	dto.setCorrectingArticles(articles);
-	Long newid = userService.editUser(dto);
-	
+
+        Long newid = userService.editUser(dto);
 	assertEquals(id, newid);
 	
 	dto = userService.getUserById(newid);
@@ -84,9 +86,11 @@ public class UserServiceImplTest extends AbstractServiceTest{
     @Test
     public void testAddAndDeleteUser() {
 	Long userId = addUser();
+     
         List<UserDto> a = userService.getAllUsers();
         assertEquals(1, a.size());
-	userService.deleteUser(userId);
+	
+        userService.deleteUser(userId);
 	a = userService.getAllUsers();
 	assertEquals(0, a.size());
     }
@@ -110,14 +114,18 @@ public class UserServiceImplTest extends AbstractServiceTest{
 	Long user1 = addUser(role, cors1);
 	Long user2 = addUser(role, cors2);
 	Long user3 = addUser(role, cors3);
-	List<UserDto> c1user = userService.getCorrectorsGroupsUser(cor1);
-	List<UserDto> c2user = userService.getCorrectorsGroupsUser(cor2);
-	List<UserDto> c3user = userService.getCorrectorsGroupsUser(cor3);
-        List<UserDto> c4user = userService.getCorrectorsGroupsUser(cor4);
+	
+        List<UserDto> c1user = userService.getCorrectorsGroupsUser(cor1);
 	assertEquals(1, c1user.size());
+        
+        List<UserDto> c2user = userService.getCorrectorsGroupsUser(cor2);
 	assertEquals(3, c2user.size());
-	assertEquals(2, c3user.size());
-        assertEquals(0, c4user.size());
+        
+        List<UserDto> c3user = userService.getCorrectorsGroupsUser(cor3);
+        assertEquals(2, c3user.size());
+        
+        List<UserDto> c4user = userService.getCorrectorsGroupsUser(cor4);
+	assertEquals(0, c4user.size());
     }
     
     
@@ -135,7 +143,6 @@ public class UserServiceImplTest extends AbstractServiceTest{
 	String surname = "surname";
         String passwd = "passwd";
         String email = "email" + System.currentTimeMillis();
-	
         return userService.addUser(name, surname, email, passwd, role, "212", g);
     }
     

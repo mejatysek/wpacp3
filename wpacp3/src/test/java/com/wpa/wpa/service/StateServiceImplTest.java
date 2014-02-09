@@ -18,13 +18,16 @@ public class StateServiceImplTest extends AbstractServiceTest{
     
     @Autowired
     private StateService instance;
+    
     @Test
     public void testAddAndRetrieveState() {
         String name = "Hotovo";
-        Long result = instance.addState(name);
-        StateDto expResult = instance.getStateById(result);
-        assertEquals(name, expResult.getName());
-	List<StateDto> results = instance.getAllStates();
-	assertEquals(1, results.size());
+        Long id = instance.addState(name);
+        
+        StateDto stateDto = instance.getStateById(id);
+        assertEquals(name, stateDto.getName());
+        
+	List<StateDto> states = instance.getAllStates();
+	assertEquals(1, states.size());
     }
 }
