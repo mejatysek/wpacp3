@@ -1,16 +1,4 @@
-/*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
- *//*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
- *//*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
- *//*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
- */
+
 package com.wpa.wpa.service;
 
 import com.wpa.wpa.dto.UserDto;
@@ -86,11 +74,11 @@ public class UserServiceImplTest extends AbstractServiceTest{
 	
 	assertEquals(id, newid);
 	
-	UserDto userDto = userService.getUserById(newid);
-	assertEquals(userDto.getName(), newName);
-	assertEquals(userDto.getSurname(), newSurname);
-	assertEquals(userDto.getEmail(), newEmail);
-	assertEquals(role, userDto.getRole());
+	dto = userService.getUserById(newid);
+	assertEquals(dto.getName(), newName);
+	assertEquals(dto.getSurname(), newSurname);
+	assertEquals(dto.getEmail(), newEmail);
+	assertEquals(role, dto.getRole());
 	
     }
     @Test
@@ -109,6 +97,7 @@ public class UserServiceImplTest extends AbstractServiceTest{
 	Long cor1 = addCorrectorsGroup();
 	Long cor2 = addCorrectorsGroup();
 	Long cor3 = addCorrectorsGroup();
+        Long cor4 = addCorrectorsGroup();
 	List<Long> cors1 = new ArrayList();
 	cors1.add(cor1);
 	cors1.add(cor2);
@@ -124,9 +113,11 @@ public class UserServiceImplTest extends AbstractServiceTest{
 	List<UserDto> c1user = userService.getCorrectorsGroupsUser(cor1);
 	List<UserDto> c2user = userService.getCorrectorsGroupsUser(cor2);
 	List<UserDto> c3user = userService.getCorrectorsGroupsUser(cor3);
+        List<UserDto> c4user = userService.getCorrectorsGroupsUser(cor4);
 	assertEquals(1, c1user.size());
 	assertEquals(3, c2user.size());
 	assertEquals(2, c3user.size());
+        assertEquals(0, c4user.size());
     }
     
     
