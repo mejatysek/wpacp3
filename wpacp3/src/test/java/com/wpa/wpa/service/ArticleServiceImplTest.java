@@ -42,7 +42,6 @@ public class ArticleServiceImplTest extends AbstractServiceTest {
 	corGroup.add(addCorrectorsGroup());
 	corGroup.add(addCorrectorsGroup());
 	Long articleId = articleService.addArticle(name, deadline, articleFile, currentState, author, cor, corGroup);
-	
 	ArticleDto art = articleService.getArticleById(articleId);
 	
 	assertEquals(articleId, art.getId());
@@ -50,9 +49,9 @@ public class ArticleServiceImplTest extends AbstractServiceTest {
 	assertEquals(name, art.getName());
 	assertEquals(author, art.getAuthor());
 	assertEquals(cor, art.getCorrector());
-	assertEquals(corGroup.size(), art.getRecomendedCorrectors().size());
 	assertEquals(corGroup, art.getRecomendedCorrectors());
-	List<ArticleDto> arts = articleService.getAllArticles();
+
+        List<ArticleDto> arts = articleService.getAllArticles();
 	assertEquals(1, arts.size());
 	assertEquals(articleId, arts.get(0).getId());
 	
@@ -61,7 +60,6 @@ public class ArticleServiceImplTest extends AbstractServiceTest {
     @Test
     public void testEditArticle() {
 	Long articleId = addArticle();
-	
 	ArticleDto artDto = articleService.getArticleById(articleId);
 	String name = "Name" + System.currentTimeMillis();
 	Date deadline = new Date();
@@ -70,6 +68,7 @@ public class ArticleServiceImplTest extends AbstractServiceTest {
 	Long currentState = addState();
 	Long author = addUser();
 	Long cor = addUser();
+        
 	artDto.setName(name);
 	artDto.setDeadline(deadline);
 	artDto.setArticleFile(articleFile);
@@ -77,23 +76,28 @@ public class ArticleServiceImplTest extends AbstractServiceTest {
 	artDto.setCurrentState(currentState);
 	artDto.setAuthor(author);
 	artDto.setCorrector(cor);
+        
 	Long newArticleId = articleService.editArticle(artDto);
-	assertEquals(newArticleId, articleId);
-	ArticleDto art = articleService.getArticleById(newArticleId);
 	
-	assertEquals(articleId, art.getId());
-	assertEquals(articleFile, art.getArticleFile());
-	assertEquals(name, art.getName());
-	assertEquals(author, art.getAuthor());
-	assertEquals(articleCorrectedFile, art.getArticleFileCorrected());
-	assertEquals(cor, art.getCorrector());
+        assertEquals(newArticleId, articleId);
+	
+        artDto = articleService.getArticleById(newArticleId);
+	
+	assertEquals(articleId, artDto.getId());
+	assertEquals(articleFile, artDto.getArticleFile());
+	assertEquals(name, artDto.getName());
+	assertEquals(author, artDto.getAuthor());
+	assertEquals(articleCorrectedFile, artDto.getArticleFileCorrected());
+	assertEquals(cor, artDto.getCorrector());
 	
     }
     @Test
     public void testDeleteArticle() {
 	Long articleId = addArticle();
+        List<ArticleDto> a = articleService.getAllArticles();
+        assertEquals(1, a.size());
 	articleService.deleteArticle(articleId);
-	List<ArticleDto> a = articleService.getAllArticles();
+	a = articleService.getAllArticles();
 	assertEquals(0, a.size());
     }
     
@@ -116,6 +120,7 @@ public class ArticleServiceImplTest extends AbstractServiceTest {
 	Long state1 = addState();
         Long corr1 = addUser();
         Long corr2 = addUser();
+        Long corr3 = addUser();
 	for (int i = 0; i < 3; i++) {
             addArticle(state1,corr1);
         }
@@ -124,6 +129,8 @@ public class ArticleServiceImplTest extends AbstractServiceTest {
 	assertEquals(3, articles.size());
 	List<ArticleDto> articles2 = articleService.getCorrectorsArticles(corr2);
 	assertEquals(1, articles2.size());
+        List<ArticleDto> articles3 = articleService.getCorrectorsArticles(corr3);
+	assertEquals(0, articles2.size());
     }
     
     private Long addArticle() {
