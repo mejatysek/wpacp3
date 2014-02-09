@@ -35,11 +35,12 @@ public class CorrectorsGroupServiceImplTest extends AbstractServiceTest {
 
     @Test
     public void testAddAndReviveCorrectorsGroup() {
-        String name = "Histori";
+        String name = "Hist";
 
         Long result = instance.addCorrectorsGroup(name);
-        CorrectorsGroupDto expResult = instance.getCorrectorsGroupById(result);
-        assertEquals(name, expResult.getName());
+        CorrectorsGroupDto CorrGDto = instance.getCorrectorsGroupById(result);
+        assertEquals(name, CorrGDto.getName());
+        
 	List<CorrectorsGroupDto> correctors = instance.getAllCorrectorsGroup();
 	assertEquals(1, correctors.size());
 	assertEquals(result, correctors.get(0).getId());
@@ -53,10 +54,11 @@ public class CorrectorsGroupServiceImplTest extends AbstractServiceTest {
         Long result2 = instance.addCorrectorsGroup(name+"2");
 	instance.addCorrectorsGroup(name+"3");
 	List<Long> cor = new ArrayList<Long>();
-	cor.add(result);
-	cor.add(result2);
+        cor.add(result);
+        cor.add(result2);
 	Long article = articleService.addArticle("test", new Date(), "file", stateService.addState("test"), user, user, cor);
-	List<CorrectorsGroupDto> artCorGroup = instance.getArticlesCorrectorsGroup(article);
+	
+        List<CorrectorsGroupDto> artCorGroup = instance.getArticlesCorrectorsGroup(article);
 	assertEquals(2, artCorGroup.size());
     }
     
@@ -68,8 +70,9 @@ public class CorrectorsGroupServiceImplTest extends AbstractServiceTest {
         groups.add(instance.addCorrectorsGroup("abc"));
         groups.add(instance.addCorrectorsGroup("abc2"));
         Long userId=userService.addUser("a", "b", "abc", "a", addRole(), "605", groups);
-        List<CorrectorsGroupDto> result = instance.getUsersCorrectorsGroup(userId);
-        assertEquals(groups.size(), result.size());
+        
+        List<CorrectorsGroupDto> correctorGroups = instance.getUsersCorrectorsGroup(userId);
+        assertEquals(groups.size(), correctorGroups.size());
     }
     
     @Test
@@ -77,9 +80,12 @@ public class CorrectorsGroupServiceImplTest extends AbstractServiceTest {
         int count=instance.getAllCorrectorsGroup().size();
         Long id=instance.addCorrectorsGroup("abc");
         List<CorrectorsGroupDto> groups;
+        
         groups= instance.getAllCorrectorsGroup();
         assertEquals(count+1, groups.size());
+        
         instance.deleteGroup(id);
+        
         groups= instance.getAllCorrectorsGroup();
         assertEquals(count, groups.size());
     }
