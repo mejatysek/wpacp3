@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+To change this template, choose Tools | Templates
+and open the template in the editor.
+-->
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:h="http://java.sun.com/jsf/html"
+      xmlns:f="http://java.sun.com/jsf/core"
+      xmlns:p="http://primefaces.org/ui"
+      xmlns:ui="http://java.sun.com/jsf/facelets"
+      xmlns:sec="http://www.springframework.org/security/facelets/tags">
+    <f:view>
+        <h:head>
+            <title>Article manager</title>
+        <script type="text/javascript" src="http://code.jquery.com/jquery-latest.js"></script>
+        <script type="text/javascript">
+            jQuery.noConflict();
+            function getGroups(id) {
+                jQuery.ajax('rest/article/'+encodeURIComponent(id)+'/groups', {type: 'GET', dataType: 'json'})
+                    .done(function(json) {
+                        var s = 'Článek (id:'+id+') je přiřazen těmto korektorským skupinám: ';
+                        if (json.groups instanceof Array) {
+                            for (var i in json.groups) {
+                                if (s != '') {s += ', ';}
+                                s += json.groups[i].name;
+                            }
+                        } else {
+                            s += json.groups.name;
+                        }
+                        alert(s);
+                    });
+            };
+        </script>
+        </h:head>
+        <h:body>
+            <p:layout fullPage="true">
+                <p:layoutUnit position="west" header="Menu" size="300" collapsed="false" scrollable="true" collapsible="true" >
+                    <ui:insert name="appMenu">
+                        <h:form>
+                            <p:growl id="messages" /> 
+                            <p:menu style="width:95%" >
+                                    <p:menuitem value="#{msg['menu.articles']}" action="/articles.xhtml?faces-redirect=true" ajax="false" icon="ui-icon-home" /> 
+                                    <sec:ifAllGranted roles="ROLE_admin">
+                                        <p:menuitem value="#{msg['menu.users']}" action="/users.xhtml?faces-redirect=true" ajax="false" icon="ui-icon-person"/>
+                                        <p:menuitem value="#{msg['menu.correctors-groups']}" action="/correctors-groups.xhtml?faces-redirect=true" ajax="false" icon="ui-icon-person"/>
+                                    </sec:ifAllGranted>
+                                    <p:menuitem value="#{msg['menu.logout']}" url="/j_spring_security_logout" />
+                                    
+                            </p:menu>
+                        </h:form>
+                    </ui:insert>
+                </p:layoutUnit>
+
+                <p:layoutUnit position="center" scrollable="true">
+                    <ui:insert name="content">
+                        #{msg['choose-menu-item']}
+                    </ui:insert>
+                </p:layoutUnit>
+            </p:layout>
+        </h:body>
+    </f:view>
+</html>

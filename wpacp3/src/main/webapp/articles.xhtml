@@ -1,0 +1,156 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml" 
+                xmlns:f="http://java.sun.com/jsf/core" 
+                xmlns:h="http://java.sun.com/jsf/html" 
+                xmlns:ui="http://java.sun.com/jsf/facelets" 
+                xmlns:p="http://primefaces.org/ui" 
+                template="/layout.xhtml"
+                xmlns:sec="http://www.springframework.org/security/facelets/tags">
+    
+<ui:define name="content">
+    
+            <h1><h:outputText value="#{msg['articles.title']}"/></h1>
+            <h:form>
+                <p:growl />
+                <p:dataTable var="article" value="#{articlesBB.allArticles}">
+                    <p:column headerText="#{msg['id']}">
+                        <h:outputText value="#{article.id}" />
+                    </p:column>
+                    <p:column headerText="#{msg['name']}">
+                        <h:outputText value="#{article.name}" />
+                    </p:column>        
+                    <p:column headerText="#{msg['author']}">
+                        <h:outputText value="#{articlesBB.getAuthorDto(article.author).name} #{articlesBB.getAuthorDto(article.author).surname}" />
+                    </p:column>            
+                    <p:column headerText="#{msg['deadline']}">
+                        <h:outputText value="#{article.deadline}">
+                            <f:convertDateTime pattern="dd. MM. yyyy" />
+                        </h:outputText>
+                    </p:column>
+                    <p:column headerText="#{msg['corrector']}">
+                        <h:outputText value="#{articlesBB.getAuthorDto(article.corrector).name} #{articlesBB.getAuthorDto(article.corrector).surname}" />
+                    </p:column>
+                    <p:column headerText="#{msg['state']}">
+                        <ui:param name="state" value="state-#{article.currentState}" />
+                        <h:outputText value="#{msg[state]}" />
+                    </p:column>
+                    <p:column headerText="#{msg['correctors-groups']}">
+                        
+                        <a onclick="getGroups(#{article.id})">#{msg['click-to-display']}</a>
+                    </p:column>
+                    <p:column headerText="#{msg['actions']}">
+                        <sec:ifAllGranted roles="ROLE_corrector">
+                            <p:commandButton value="#{msg['article.take']}" update="@form,:correctorsArticles" actionListener="#{articlesBB.takeArticle(article.id)}"/>
+                        </sec:ifAllGranted>
+                        <sec:ifAllGranted roles="ROLE_admin">
+                            <p:commandButton value="#{msg['article.correct']}" oncomplete="correctArticleDialog.show()" update=":correctArticleForm:display" actionListener="#{articlesBB.loadArticle(article.id)}"/>
+                        </sec:ifAllGranted>
+                        <sec:ifAnyGranted roles="ROLE_admin,ROLE_author">
+                            <p:commandButton value="#{msg['article.show-corrected']}" oncomplete="correctedArticleDialog.show()" update=":correctedArticleDisplay" actionListener="#{articlesBB.loadArticle(article.id)}" rendered="#{article.currentState == 3}"/>
+                        </sec:ifAnyGranted>
+                        <p:commandButton value="#{msg['update']}" oncomplete="updateArticleDialog.show()" update=":updateArticleForm:display" actionListener="#{articlesBB.loadArticle(article.id)}" rendered="#{articlesBB.isAllowToDelete(article.author)}"/>
+                        <p:commandButton value="#{msg['delete']}" actionListener="#{articlesBB.deleteArticle(article.id)}" update="@form" rendered="#{articlesBB.isAllowToDelete(article.author)}" />
+                        
+                    </p:column>
+                    <sec:ifAnyGranted roles="ROLE_admin,ROLE_author">
+                    <f:facet name="footer">
+                        <p:commandButton value="#{msg['article.create']}" oncomplete="createArticleDialog.show()" update=":createArticleForm:display"/>
+                    </f:facet>
+                    </sec:ifAnyGranted>
+                </p:dataTable>
+            </h:form>
+            <sec:ifAllGranted roles="ROLE_corrector">
+            <h1><h:outputText value="#{msg['articles.correctors-title']}"/></h1>
+                <h:form id="correctorsArticles">
+                    <p:growl />
+                    <p:dataTable var="article" value="#{articlesBB.correctorsArticles}">
+                        <p:column headerText="#{msg['id']}">
+                            <h:outputText value="#{article.id}" />
+                        </p:column>
+                        <p:column headerText="#{msg['name']}">
+                            <h:outputText value="#{article.name}" />
+                        </p:column>        
+                        <p:column headerText="#{msg['author']}">
+                            <h:outputText value="#{articlesBB.getAuthorDto(article.author).name} #{articlesBB.getAuthorDto(article.author).surname}" />
+                        </p:column>            
+                        <p:column headerText="#{msg['deadline']}">
+                            <h:outputText value="#{article.deadline}">
+                                <f:convertDateTime pattern="dd. MM. yyyy" />
+                            </h:outputText>
+                        </p:column>
+                        <p:column headerText="#{msg['state']}">
+                            <ui:param name="state" value="state-#{article.currentState}" />
+                            <h:outputText value="#{msg[state]}" />
+                        </p:column>
+                        <p:column headerText="#{msg['actions']}">
+                            <p:commandButton value="#{msg['article.correct']}" oncomplete="correctArticleDialog.show()" update=":correctArticleForm:display" actionListener="#{articlesBB.loadArticle(article.id)}"/>
+                        </p:column>
+                    </p:dataTable>
+                </h:form>
+            </sec:ifAllGranted>
+            <p:dialog header="#{msg['article.corrected-article']}" widgetVar="correctedArticleDialog" resizable="false" id="correctedArticleDlg" > 
+                <h:form id="correctedArticleDisplay">
+                    <p:editor value="#{articlesBB.update.articleFileCorrected}" disabled="true" />
+                </h:form>
+            </p:dialog> 
+            <p:dialog header="#{msg['article.update']}" widgetVar="updateArticleDialog" resizable="false" id="updateArticleDlg" > 
+                <h:form id="updateArticleForm">
+                    <p:panelGrid id="display" columns="2" style="margin:0 auto;">   
+                        <h:outputLabel value="#{msg['name']}: " for="name"/>
+                        <p:inputText label="Name" id="name" value="#{articlesBB.update.name}" required="true" >
+                            <f:validateLength maximum="255" />
+                        </p:inputText>
+                        <h:outputLabel value="#{msg['deadline']}: " for="deadline"/>
+                        <p:calendar showButtonPanel="true" value="#{articlesBB.update.deadline}" navigator="true" id="deadline"/>
+                        <h:outputLabel value="#{msg['article']}: " for="file"/>
+                        <p:editor id="file" value="#{articlesBB.update.articleFile}" required="true" />
+                        <h:outputText value="#{msg['correctors-groups']}: " />  
+                        <p:selectManyMenu value="#{articlesBB.update.recomendedCorrectors}" required="true">
+                            <f:converter binding="#{longConverter}"/>
+                            <f:selectItems value="#{correctorsGroupsBB.allCorrectors}" var="correctors" itemLabel="#{correctors.name}" itemValue="#{correctors.id}"/>  
+                        </p:selectManyMenu>  
+                        <f:facet name="footer">
+                        <h:commandButton action="#{articlesBB.updateArticle()}" value="#{msg['update']}" />
+                        </f:facet>
+                    </p:panelGrid>  
+                </h:form>
+            </p:dialog> 
+
+
+            <p:dialog header="#{msg['article.create']}" onLoad="reset()" widgetVar="createArticleDialog" resizable="false" id="createArticleDlg">
+                <h:form id="createArticleForm">
+                    <h:panelGrid columns="2" id="display">
+                        <h:outputLabel value="#{msg['name']}: " for="name"/>
+                        <p:inputText label="Name" id="name" value="#{articlesBB.name}" required="true" >
+                            <f:validateLength maximum="255" />
+                        </p:inputText>
+                        <h:outputLabel value="#{msg['deadline']}: " for="deadline"/>
+                        <p:calendar showButtonPanel="true" value="#{articlesBB.deadline}" navigator="true" id="deadline"/>
+                        <h:outputLabel value="#{msg['article']}: " for="file"/>
+                        <p:editor id="file" value="#{articlesBB.articleFile}" required="true" />
+                        <h:outputText value="#{msg['correctors-groups']}: " />  
+                        <p:selectManyMenu value="#{articlesBB.recomendedCorrectors}" required="true">  
+                            <f:converter binding="#{longConverter}"/>
+                            <f:selectItems value="#{correctorsGroupsBB.allCorrectors}" var="correctors" itemLabel="#{correctors.name}" itemValue="#{correctors.id}"/>  
+                        </p:selectManyMenu> 
+                        
+                        <f:facet name="footer">
+                        <h:commandButton action="#{articlesBB.storeArticle()}" value="#{msg['article.create']}" />
+                        </f:facet>
+                    </h:panelGrid>
+                </h:form>
+            </p:dialog>
+            <p:dialog header="#{msg['article.add-corrected']}" widgetVar="correctArticleDialog" resizable="false" id="correctArticleDlg">
+                <h:form id="correctArticleForm">
+                    <h:panelGrid columns="2" id="display">
+                        <h:outputLabel value="#{msg['article']}: " for="file"/>
+                        <p:editor id="file" value="#{articlesBB.update.articleFile}" required="true" disabled="true" />
+                        <h:outputLabel value="#{msg['corrected-article']}: " for="correctedfile"/>
+                        <p:editor id="correctedfile" value="#{articlesBB.update.articleFileCorrected}" required="true" />
+                        <h:commandButton action="#{articlesBB.correctArticle()}" value="#{msg['article.add-corrected']}" />
+                    </h:panelGrid>
+                </h:form>
+            </p:dialog>
+       
+
+</ui:define>
+</ui:composition>

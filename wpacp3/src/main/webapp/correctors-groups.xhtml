@@ -1,0 +1,40 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml" 
+                xmlns:f="http://java.sun.com/jsf/core" 
+                xmlns:h="http://java.sun.com/jsf/html" 
+                xmlns:ui="http://java.sun.com/jsf/facelets" 
+                xmlns:p="http://primefaces.org/ui" 
+                template="/layout.xhtml">
+    <ui:define name="content">
+        <h1><h:outputText value="#{msg['correctors.title']}"/></h1>
+        <h:form>
+            <p:growl />
+            <p:dataTable var="group" value="#{correctorsGroupsBB.allCorrectors}">
+                <p:column headerText="Id">
+                    <h:outputText value="#{group.id}" />
+                </p:column>
+                <p:column headerText="Name">
+                    <h:outputText value="#{group.name}" />
+                </p:column>        
+                <p:column headerText="Delete">
+                    <p:commandButton value="Delete group" actionListener="#{correctorsGroupsBB.deleteGroup(group.id)}" update="@form"/>
+                </p:column>      
+                <f:facet name="footer">
+                    <p:commandButton value="Create group" oncomplete="createGroupDialog.show()" update=":createGroupForm:display" />
+                </f:facet>
+            </p:dataTable>
+        </h:form>
+
+
+        <p:dialog header="Create group" widgetVar="createGroupDialog" onLoad="reset()" resizable="false" id="createGroupDlg">
+            <h:form id="createGroupForm">
+                <h:panelGrid columns="2" id="display">
+                    <h:outputLabel value="Name: " for="name"/>
+                    <p:inputText label="Name" id="name" value="#{correctorsGroupsBB.name}" required="true" >
+                        <f:validateLength maximum="255" />
+                    </p:inputText>
+                    <h:commandButton action="#{correctorsGroupsBB.storeGroup()}" value="Add" />
+                </h:panelGrid>
+            </h:form>
+        </p:dialog>
+    </ui:define>
+</ui:composition>
